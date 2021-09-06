@@ -75,7 +75,7 @@ bool CameraImpl::generateMonolithicGeodataTrav(TraverseNode *trav)
     return true;
 }
 
-bool CameraImpl::travDetermineMeta(TraverseNode *trav)
+bool CameraImpl::travDetermineMeta(TraverseNode *trav, bool initAllChild)
 {
     assert(trav->layer);
     assert(!trav->meta);
@@ -179,13 +179,14 @@ bool CameraImpl::travDetermineMeta(TraverseNode *trav)
     trav->meta = chosen->getNode(nodeId);
 
     // prepare children
-    if (childsAvailable[0] || childsAvailable[1] || childsAvailable[2] || childsAvailable[3])
+    if (initAllChild || childsAvailable[0] || childsAvailable[1] || childsAvailable[2] || childsAvailable[3])
     {
         vtslibs::vts::Children childs = vtslibs::vts::children(nodeId);
         trav->childs.ptr = std::make_unique<TraverseChildsArray>();
         for (uint32 i = 0; i < 4; i++)
-            if (childsAvailable[i])
+            if (initAllChild || childsAvailable[i]) {
                 trav->childs.ptr->arr.emplace_back(trav->layer, trav, childs[i]);
+            }
     }
 
     // update priority
@@ -439,7 +440,7 @@ bool CameraImpl::travDetermineDrawsGeodata(TraverseNode *trav)
     return true;
 }
 
-bool CameraImpl::travInit(TraverseNode *trav)
+bool CameraImpl::travInit(TraverseNode *trav, bool initAllChildren)
 {
     // statistics
     {
@@ -459,7 +460,7 @@ bool CameraImpl::travInit(TraverseNode *trav)
             if (it)
                 map->touchResource(it);
         }
-        return travDetermineMeta(trav);
+        return travDetermineMeta(trav, initAllChildren);
     }
 
     return true;
@@ -593,6 +594,78 @@ bool CameraImpl::travModeStable(TraverseNode *trav, int mode)
         return ok;
     }
 }
+
+bool myVisibilityTest(TraverseNode *trav, int lod, int a1, int b1, int a2, int b2) {
+    int shift = lod - trav->id.lod;
+    if (shift < 0) {
+        return false;
+    }
+    a1 >>= shift;
+    a2 >>= shift;
+    b1 >>= shift;
+    b2 >>= shift;
+    auto ret = trav->id.x >= a1 && trav->id.x <= a2
+        && trav->id.y >= b1 && trav->id.y <= b2;
+    return ret;
+}
+
+bool CameraImpl::travLod(TraverseNode *trav, int lod, int a1, int b1, int a2, int b2) {
+    if (!travInit(trav))
+        return false;
+
+    if (!myVisibilityTest(trav, lod, a1, b1, a2, b2))
+        return true;
+
+    if (trav->id.lod >= lod || trav->childs.empty())
+        //if (coarsenessTest(trav) || trav->childs.empty())
+    {
+        gridPreloadRequest(trav);
+        if (travDetermineDraws(trav))
+        {
+            renderNode(trav);
+            return true;
+        }
+    }
+
+    Array<bool, 4> oks;
+    oks.resize(trav->childs.size());
+    uint32 i = 0, okc = 0;
+    for (auto &it : trav->childs)
+    {
+        bool ok = travLod(&it, lod, a1, b1, a2, b2);
+        oks[i++] = ok;
+        if (ok)
+            okc++;
+    }
+    i = 0;
+    for (auto &it : trav->childs)
+    {
+        if (!oks[i++])
+            renderNodeCoarser(&it);
+    }
+    return true;
+}
+
+//bool CameraImpl::travLod(TraverseNode *trav, int lod, int a1, int b1, int a2, int b2) {
+//    if (myFixedTravs.empty()) {
+//        for (int a = a1; a <= a2; a++) {
+//            for (int b = b1; b <= b2; b++) {
+//                vtslibs::vts::TileId tileId(lod, a, b);
+//                myFixedTravs.push_back(std::make_shared<TraverseNode>(trav->layer, nullptr, tileId));
+//            }
+//        }
+//    }
+//    for (auto &it : myFixedTravs) {
+//        if (!travInit(it.get(), true))
+//            continue;
+//        gridPreloadRequest(it.get());
+//        if (travDetermineDraws(it.get()))
+//        {
+//            renderNode(it.get());
+//        }
+//    }
+//    return true;
+//};
 
 bool CameraImpl::travModeBalanced(TraverseNode *trav, bool renderOnly)
 {

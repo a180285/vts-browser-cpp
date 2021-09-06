@@ -127,6 +127,11 @@ void Camera::renderUpdate()
     impl->renderUpdate();
 }
 
+void Camera::renderUpdateForLod(int lod, int a1, int b1, int a2, int b2)
+{
+    impl->renderUpdateForLod(lod, a1, b1, a2, b2);
+}
+
 CameraStatistics &Camera::statistics()
 {
     return impl->statistics;

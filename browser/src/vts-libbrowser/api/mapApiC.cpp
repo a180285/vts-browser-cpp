@@ -558,6 +558,13 @@ void vtsCameraRenderUpdate(vtsHCamera cam)
     C_END
 }
 
+void vtsCameraRenderUpdateForLod(vtsHCamera cam, int lod, int a1, int b1, int a2, int b2)
+{
+    C_BEGIN
+        cam->p->renderUpdateForLod(lod, a1, b1, a2, b2);
+    C_END
+}
+
 // credits
 
 const char *vtsCameraGetCredits(vtsHCamera cam)

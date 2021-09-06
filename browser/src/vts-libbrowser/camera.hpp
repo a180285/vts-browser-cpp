@@ -92,6 +92,7 @@ public:
 
 class CameraImpl : private Immovable
 {
+    std::vector<std::shared_ptr<TraverseNode>> myFixedTravs;
 public:
     MapImpl *const map = nullptr;
     Camera *const camera = nullptr;
@@ -142,17 +143,18 @@ public:
     DrawColliderTask convert(const RenderColliderTask &task);
     bool generateMonolithicGeodataTrav(TraverseNode *trav);
     std::shared_ptr<GpuTexture> travInternalTexture(TraverseNode *trav, uint32 subMeshIndex);
-    bool travDetermineMeta(TraverseNode *trav);
+    bool travDetermineMeta(TraverseNode *trav, bool initAllChild = false);
     bool travDetermineDraws(TraverseNode *trav);
     bool travDetermineDrawsSurface(TraverseNode *trav);
     bool travDetermineDrawsGeodata(TraverseNode *trav);
     double travDistance(TraverseNode *trav, const vec3 pointPhys);
     void updateNodePriority(TraverseNode *trav);
-    bool travInit(TraverseNode *trav);
+    bool travInit(TraverseNode *trav, bool initAllChildren = false);
     void travModeHierarchical(TraverseNode *trav, bool loadOnly);
     void travModeFlat(TraverseNode *trav);
     bool travModeStable(TraverseNode *trav, int mode);
     bool travModeBalanced(TraverseNode *trav, bool renderOnly);
+    bool travLod(TraverseNode *trav, int lod, int a1, int b1, int a2, int b2);
     void travModeFixed(TraverseNode *trav);
     void traverseRender(TraverseNode *trav);
     void gridPreloadRequest(TraverseNode *trav);
@@ -161,6 +163,7 @@ public:
     void resolveBlending(TraverseNode *root, CameraMapLayer &layer);
     void sortOpaqueFrontToBack();
     void renderUpdate();
+    void renderUpdateForLod(int lod, int a1, int b1, int a2, int b2);
     void suggestedNearFar(double &near_, double &far_);
     bool getSurfaceOverEllipsoid(double &result, const vec3 &navPos, double sampleSize = -1, bool renderDebug = false);
     double getSurfaceAltitudeSamples();

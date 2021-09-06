@@ -963,6 +963,119 @@ void CameraImpl::renderUpdate()
     map->credits->tick(credits);
 }
 
+void CameraImpl::renderUpdateForLod(int lod, int a1, int b1, int a2, int b2)
+{
+    OPTICK_EVENT();
+    clear();
+
+    if (!map->mapconfigReady)
+        return;
+
+    updateNavigation(navigation, map->lastElapsedFrameTime);
+
+    if (windowWidth == 0 || windowHeight == 0)
+        return;
+
+    // render variables
+    viewActual = lookAt(eye, target, up);
+    viewProjActual = apiProj * viewActual;
+    if (!options.debugDetachedCamera)
+    {
+        vec3 forward = normalize(vec3(target - eye));
+        vec3 off = forward * options.cullingOffsetDistance;
+        viewProjCulling = apiProj * lookAt(eye - off, target, up);
+        viewProjRender = viewProjActual;
+        perpendicularUnitVector
+            = normalize(cross(cross(up, forward), forward));
+        forwardUnitVector = forward;
+        vts::frustumPlanes(viewProjCulling, cullingPlanes);
+        cameraPosPhys = eye;
+        focusPosPhys = target;
+        diskNominalDistance = windowHeight * apiProj(1, 1) * 0.5;
+    }
+    else
+    {
+        // render original camera
+        RenderInfographicsTask task;
+        task.mesh = map->getMesh("internal://data/meshes/line.obj");
+        task.mesh->priority = inf1();
+        task.color = vec4f(0, 1, 0, 1);
+        if (task.ready())
+        {
+            std::vector<vec3> corners;
+            corners.reserve(8);
+            mat4 m = viewProjRender.inverse();
+            for (int x = 0; x < 2; x++)
+                for (int y = 0; y < 2; y++)
+                    for (int z = 0; z < 2; z++)
+                        corners.push_back(vec4to3(vec4(m
+                            * vec4(x * 2 - 1, y * 2 - 1, z * 2 - 1, 1)), true));
+            static const uint32 cora[] = {
+                0, 0, 1, 2, 4, 4, 5, 6, 0, 1, 2, 3
+            };
+            static const uint32 corb[] = {
+                1, 2, 3, 3, 5, 6, 7, 7, 4, 5, 6, 7
+            };
+            for (uint32 i = 0; i < 12; i++)
+            {
+                vec3 a = corners[cora[i]];
+                vec3 b = corners[corb[i]];
+                task.model = lookAt(a, b);
+                draws.infographics.emplace_back(convert(task));
+            }
+        }
+    }
+
+    // update draws camera
+    {
+        CameraDraws::Camera &c = draws.camera;
+        matToRaw(viewActual, c.view);
+        matToRaw(apiProj, c.proj);
+        vecToRaw(eye, c.eye);
+        c.targetDistance = length(vec3(target - eye));
+        c.viewExtent = c.targetDistance / (c.proj[5] * 0.5);
+
+        // altitudes
+        {
+            vec3 navPos = map->convertor->physToNav(eye);
+            c.altitudeOverEllipsoid = navPos[2];
+            double tmp;
+            if (getSurfaceOverEllipsoid(tmp, navPos))
+                c.altitudeOverSurface = c.altitudeOverEllipsoid - tmp;
+            else
+                c.altitudeOverSurface = nan1();
+        }
+    }
+
+    // traverse and generate draws
+    for (auto &it : map->layers)
+    {
+        if (it->surfaceStack.surfaces.empty())
+            continue;
+        OPTICK_EVENT("layer");
+        if (!it->freeLayerName.empty())
+        {
+            OPTICK_TAG("freeLayerName", it->freeLayerName.c_str());
+        }
+        {
+            OPTICK_EVENT("traversal For lod");
+            travLod(it->traverseRoot.get(), lod, a1, b1, a2, b2);
+        }
+        resolveBlending(it->traverseRoot.get(), layers[it]);
+        {
+            OPTICK_EVENT("subtileMerging");
+            for (auto &os : opaqueSubtiles)
+                os.second.resolve(os.first, this);
+            opaqueSubtiles.clear();
+        }
+        gridPreloadProcess(it->traverseRoot.get());
+    }
+    sortOpaqueFrontToBack();
+
+    // update camera credits
+    map->credits->tick(credits);
+}
+
 namespace
 {
 

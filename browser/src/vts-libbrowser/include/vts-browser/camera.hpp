@@ -65,6 +65,7 @@ public:
     void suggestedNearFar(double &near_, double &far_);
 
     void renderUpdate();
+    void renderUpdateForLod(int lod, int a1, int b1, int a2, int b2);
 
     CameraCredits &credits();
     CameraDraws &draws();

@@ -48,6 +48,7 @@ VTS_API void vtsCameraGetViewMatrix(vtsHCamera cam, double view[16]);
 VTS_API void vtsCameraGetProjMatrix(vtsHCamera cam, double proj[16]);
 VTS_API void vtsCameraSuggestedNearFar(vtsHCamera cam, double *near_, double *far_);
 VTS_API void vtsCameraRenderUpdate(vtsHCamera cam);
+VTS_API void vtsCameraRenderUpdateForLod(vtsHCamera cam, int lod, int a1, int b1, int a2, int b2);
 
 // credits
 VTS_API const char *vtsCameraGetCredits(vtsHCamera cam);
