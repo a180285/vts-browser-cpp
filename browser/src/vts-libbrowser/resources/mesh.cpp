@@ -87,6 +87,7 @@ GpuMesh::GpuMesh(MapImpl *map, const std::string &name,
         vertexSize += sizeof(vec2ui16);
 
     GpuMeshSpec spec;
+    spec.jsonStr = m.jsonStr;
 
 #if 1 // indexed mesh
 

@@ -36,7 +36,7 @@
 	url = https://github.com/melowntech/libutility.git
 [submodule "externals/vts-libs"]
 	path = externals/vts-libs
-	url = https://github.com/melowntech/vts-libs.git
+	url = https://github.com/a180285/vts-libs.git
 [submodule "externals/proj-data"]
 	path = externals/proj-data
 	url = https://github.com/melowntech/proj-data.git

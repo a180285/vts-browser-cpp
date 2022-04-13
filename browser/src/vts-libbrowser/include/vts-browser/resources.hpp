@@ -29,6 +29,7 @@
 
 #include <array>
 #include <memory>
+#include <vector>
 
 #include "buffer.hpp"
 
@@ -146,6 +147,8 @@ public:
 
     GpuMeshSpec() = default;
     explicit GpuMeshSpec(const Buffer &buffer); // decode obj file
+
+    std::vector<char> jsonStr;
 
     // an array of vertex data
     // the interpretation of the data is defined by the 'attributes' member
