@@ -157,8 +157,8 @@ bool CameraImpl::visibilityTest(TraverseNode *trav)
 bool CameraImpl::coarsenessTest(TraverseNode *trav)
 {
     assert(trav->meta);
-    return coarsenessValue(trav)
-        < (trav->layer->isGeodata()
+    auto coarseness = coarsenessValue(trav);
+    return coarseness < (trav->layer->isGeodata()
         ? options.targetPixelRatioGeodata
         : options.targetPixelRatioSurfaces);
 }
@@ -192,7 +192,8 @@ double CameraImpl::coarsenessValue(TraverseNode *trav)
 
     if (meta->texelSize == inf1())
         return meta->texelSize;
-
+    // TODO: NOTE: just for test
+    map->options.debugCoarsenessDisks = false;
     if (map->options.debugCoarsenessDisks
         && !std::isnan(meta->diskHalfAngle))
     {
@@ -206,12 +207,15 @@ double CameraImpl::coarsenessValue(TraverseNode *trav)
     }
     else
     {
+        // TODO: NOTE: just for test OUR VEF don't has correct texelSize
+        double texelSize = 1.0 / pow(2, meta->tileId.lod - 18);
         // test the value on all corners of node bounding box
         double result = 0;
         for (uint32 i = 0; i < 8; i++)
         {
             vec3 c = meta->cornersPhys(i);
-            vec3 up = perpendicularUnitVector * meta->texelSize;
+//            vec3 up = perpendicularUnitVector * meta->texelSize;
+            vec3 up = perpendicularUnitVector * texelSize;
             vec3 c1 = c - up * 0.5;
             vec3 c2 = c1 + up;
             c1 = vec4to3(vec4(viewProjRender * vec3to4(c1, 1)), true);
