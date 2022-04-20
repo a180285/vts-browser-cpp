@@ -58,6 +58,7 @@ VTS_API uint32 vtsMeshGetFaceMode(vtsHResource resource);
 VTS_API void vtsMeshGetVertices(vtsHResource resource, void **data, uint32 *size, uint32 *count); // size is total size of the buffer in bytes
 VTS_API void vtsMeshGetIndices(vtsHResource resource, void **data, uint32 *size, uint32 *count);
 VTS_API void vtsMeshGetAttribute(vtsHResource resource, uint32 index, uint32 *offset, uint32 *stride, uint32 *components, uint32 *type, bool *enable, bool *normalized);
+VTS_API const char* vtsMeshGetJson(vtsHResource resource);
 
 #ifdef __cplusplus
 } // extern C
