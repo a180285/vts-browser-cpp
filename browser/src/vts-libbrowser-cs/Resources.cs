@@ -122,6 +122,7 @@ namespace vts
         public uint verticesCount;
         public uint indicesCount;
         public byte[] vertices;
+        // TODO: Change to uint to support more than 2^16 vertices
         public ushort[] indices;
         public string id;
 

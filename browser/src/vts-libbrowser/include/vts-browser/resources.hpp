@@ -157,6 +157,13 @@ public:
     // an array of uint16, uint32, or empty if the mesh is not indexed
     Buffer indices;
 
+    // if normals.size == 0, means there is no normals from vts server
+    // if normals.size == verticesCount * 3
+        // normals[0, 1, 2] == vertex[0].x, y, z
+        // normals[3, 4, 5] == vertex[1].x, y, z
+        // etc
+    std::vector<float> normals;
+
     // description of memory layout in the vertices buffer
     std::array<VertexAttribute, 4> attributes;
 

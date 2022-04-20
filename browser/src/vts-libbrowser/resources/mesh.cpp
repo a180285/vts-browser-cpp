@@ -88,6 +88,9 @@ GpuMesh::GpuMesh(MapImpl *map, const std::string &name,
 
     GpuMeshSpec spec;
     spec.jsonStr = m.jsonStr;
+    // For debug only
+//    spec.jsonStr.push_back('\0');
+//    std::cout << "json: " <<  (char*)spec.jsonStr.data() << std::endl;
 
 #if 1 // indexed mesh
 
@@ -169,7 +172,7 @@ GpuMesh::GpuMesh(MapImpl *map, const std::string &name,
     }
     else
     {
-        // internal control
+        // internal control, vef usually here.
         spec.verticesCount = m.tc.size();
         spec.vertices.allocate(spec.verticesCount * vertexSize);
         spec.indicesCount = m.facesTc.size() * 3;
@@ -185,6 +188,10 @@ GpuMesh::GpuMesh(MapImpl *map, const std::string &name,
             assert((char*)io == spec.indices.dataEnd());
         }
 
+        if (!m.normalIndexes.empty()) {
+            spec.normals.resize(spec.verticesCount * 3);
+        }
+
         // vertex data
         char *ps = spec.vertices.data() + spec.attributes[0].offset;
         char *is = spec.vertices.data() + spec.attributes[1].offset;
@@ -193,6 +200,7 @@ GpuMesh::GpuMesh(MapImpl *map, const std::string &name,
         {
             for (uint32 vi = 0; vi < 3; vi++)
             {
+                // 'oi' is index of vertex
                 uint32 oi = m.facesTc[fi][vi];
                 assert(oi < spec.verticesCount);
                 uint32 ii = m.faces[fi][vi];
@@ -209,6 +217,14 @@ GpuMesh::GpuMesh(MapImpl *map, const std::string &name,
                 { // external uv
                     vec2ui16 uv = vec2to2ui16(vecFromUblas<vec2f>(m.etc[ii]));
                     *(vec2ui16*)(es + oi * vertexSize) = uv;
+                }
+                if (!m.normalIndexes.empty()) {
+                    assert(oi * 3 < spec.normals.size());
+                    // normal
+                    const auto& normal = m.normals[m.normalIndexes[fi][vi]];
+                    for (int xyz = 0; xyz < 3; xyz++) {
+                        spec.normals[oi * 3 + xyz] = normal[xyz];
+                    }
                 }
             }
         }
