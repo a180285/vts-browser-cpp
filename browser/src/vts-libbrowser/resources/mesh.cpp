@@ -82,9 +82,9 @@ GpuMesh::GpuMesh(MapImpl *map, const std::string &name,
 
     uint32 vertexSize = sizeof(vec3f);
     if (m.tc.size())
-        vertexSize += sizeof(vec2ui16);
+        vertexSize += sizeof(vec2f);
     if (m.etc.size())
-        vertexSize += sizeof(vec2ui16);
+        vertexSize += sizeof(vec2f);
 
     GpuMeshSpec spec;
     spec.jsonStr = m.jsonStr;
@@ -108,23 +108,23 @@ GpuMesh::GpuMesh(MapImpl *map, const std::string &name,
         if (!m.tc.empty())
         { // internal uv
             spec.attributes[1].enable = true;
-            spec.attributes[1].type = GpuTypeEnum::UnsignedShort;
+            spec.attributes[1].type = GpuTypeEnum::Float;
             spec.attributes[1].components = 2;
-            spec.attributes[1].normalized = true;
+            spec.attributes[1].normalized = false;
             spec.attributes[1].offset = offset;
             spec.attributes[1].stride = vertexSize;
-            offset += sizeof(vec2ui16);
+            offset += sizeof(vec2f);
         }
 
         if (!m.etc.empty())
         { // external uv
             spec.attributes[2].enable = true;
-            spec.attributes[2].type = GpuTypeEnum::UnsignedShort;
+            spec.attributes[2].type = GpuTypeEnum::Float;
             spec.attributes[2].components = 2;
-            spec.attributes[2].normalized = true;
+            spec.attributes[2].normalized = false;
             spec.attributes[2].offset = offset;
             spec.attributes[2].stride = vertexSize;
-            offset += sizeof(vec2ui16);
+            offset += sizeof(vec2f);
         }
 
         assert(offset == vertexSize);
@@ -161,12 +161,12 @@ GpuMesh::GpuMesh(MapImpl *map, const std::string &name,
 
         if (spec.attributes[2].enable)
         { // external uvs
-            vec2ui16 *o = (vec2ui16*)(spec.vertices.data()
+            vec2f *o = (vec2f*)(spec.vertices.data()
                                       + spec.attributes[2].offset);
             for (const auto &it : m.etc)
             {
-                *o = vec2to2ui16(vecFromUblas<vec2f>(it));
-                o = (vec2ui16*)((char*)o + vertexSize);
+                *o = vecFromUblas<vec2f>(it);
+                o = (vec2f*)((char*)o + vertexSize);
             }
         }
     }
@@ -206,17 +206,17 @@ GpuMesh::GpuMesh(MapImpl *map, const std::string &name,
                 uint32 ii = m.faces[fi][vi];
                 assert(ii < m.vertices.size());
                 { // position
-                    vec3 v = vecFromUblas<vec3>(m.vertices[ii]);
-                    *(vec3f*)(ps + oi * vertexSize) = v.cast<float>();
+                    vec3f v = vecFromUblas<vec3f>(m.vertices[ii]);
+                    *(vec3f*)(ps + oi * vertexSize) = v; //.cast<float>();
                 }
                 { // internal uv
-                    vec2ui16 uv = vec2to2ui16(vecFromUblas<vec2f>(m.tc[oi]));
-                    *(vec2ui16*)(is + oi * vertexSize) = uv;
+                    vec2f uv = vecFromUblas<vec2f>(m.tc[oi]);
+                    *(vec2f*)(is + oi * vertexSize) = uv;
                 }
                 if (spec.attributes[2].enable)
                 { // external uv
-                    vec2ui16 uv = vec2to2ui16(vecFromUblas<vec2f>(m.etc[ii]));
-                    *(vec2ui16*)(es + oi * vertexSize) = uv;
+                    vec2f uv = vecFromUblas<vec2f>(m.etc[ii]);
+                    *(vec2f*)(es + oi * vertexSize) = uv;
                 }
                 if (!m.normalIndexes.empty()) {
                     assert(oi * 3 < spec.normals.size());
