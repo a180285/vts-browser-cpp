@@ -1055,6 +1055,15 @@ void vtsMeshGetAttribute(vtsHResource resource, uint32 index, uint32 *offset, ui
     C_END
 }
 
+const char* vtsMeshGetJson(vtsHResource resource)
+{
+    C_BEGIN
+        std::vector<char> input = (resource->ptr.m->jsonStr);
+    std::string s(input.begin(), input.end());
+    return vts::retStr(s);
+    C_END
+        return nullptr;
+}
 ////////////////////////////////////////////////////////////////////////////
 // CALLBACKS
 ////////////////////////////////////////////////////////////////////////////
