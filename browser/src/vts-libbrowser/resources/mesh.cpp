@@ -72,6 +72,7 @@ GpuMesh::GpuMesh(MapImpl *map, const std::string &name,
     Resource(map, name)
 {
     OPTICK_EVENT("decode submesh");
+    typedef uint32 index_type;
 
     // this type of mesh is never managed by the resource manager
     // instead it is always owned by an aggregate mesh
@@ -136,10 +137,10 @@ GpuMesh::GpuMesh(MapImpl *map, const std::string &name,
         spec.verticesCount = m.vertices.size();
         spec.vertices.allocate(spec.verticesCount * vertexSize);
         spec.indicesCount = m.faces.size() * 3;
-        spec.indices.allocate(spec.indicesCount * sizeof(uint32));
+        spec.indices.allocate(spec.indicesCount * sizeof(index_type));
 
         { // indices
-            uint32 *io = (uint32*)spec.indices.data();
+            auto io = (index_type*)spec.indices.data();
             for (const auto &it : m.faces)
             {
                 for (uint32 j = 0; j < 3; j++)
@@ -176,10 +177,10 @@ GpuMesh::GpuMesh(MapImpl *map, const std::string &name,
         spec.verticesCount = m.tc.size();
         spec.vertices.allocate(spec.verticesCount * vertexSize);
         spec.indicesCount = m.facesTc.size() * 3;
-        spec.indices.allocate(spec.indicesCount * sizeof(uint32));
+        spec.indices.allocate(spec.indicesCount * sizeof(index_type));
 
         { // indices
-            uint32 *io = (uint32*)spec.indices.data();
+            auto io = (index_type*)spec.indices.data();
             for (const auto &it : m.facesTc)
             {
                 for (uint32 j = 0; j < 3; j++) {

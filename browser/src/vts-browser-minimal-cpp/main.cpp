@@ -27,7 +27,9 @@
 #include <vts-browser/log.hpp>
 #include <vts-browser/map.hpp>
 #include <vts-browser/camera.hpp>
+#include <vts-browser/cameraOptions.hpp>
 #include <vts-browser/navigation.hpp>
+#include <vts-browser/navigationOptions.hpp>
 #include <vts-renderer/renderer.hpp>
 #include <vts-renderer/highPerformanceGpuHint.h>
 
@@ -136,14 +138,44 @@ int main(int, char *[])
 
     // create a camera and acquire its navigation handle
     cam = map->createCamera();
-    nav = cam->createNavigation();
+    auto& co = cam->options();
+    co.fixedTraversalDistance = 200;
+    co.fixedTraversalLod = 19;
+    co.traverseModeSurfaces = vts::TraverseMode::Balanced;
+    std::string url =
+            // with_ normal
+//            "http://cloud-vts.huangwei.icu:8070/store/datasets/hdrp_vef_07.1650538913/mapConfig.json"
+            // float uv
+//            "http://cloud-vts.huangwei.icu:8070/store/datasets/hdrp_vef_07.1650537048/mapConfig.json"
+//            "http://cloud-vts.huangwei.icu:8070/store/map-config/float-uv.1650537048.json/mapConfig.json"
+//            "http://cloud-vts.huangwei.icu:8070/store/map-config/hdrp_vef_12.2022-04-24_13-23-14.json/mapConfig.json"
+            // u32 mesh
+//            "http://cloud-vts.huangwei.icu:8070/store/datasets/hdrp_vef_11.2022-04-24_11-13-44/mapConfig.json"
+//            "http://cloud-vts.huangwei.icu:8070/store/map-config/hdrp_vef_13.2022-04-25_14-48-22.json/mapConfig.json"
+//            "http://cloud-vts.huangwei.icu:8070/store/map-config/GlobalData_Anting/mapConfig.json"
+//            "http://cloud-vts.huangwei.icu:8070/store/map-config/GlobalData_Anting_v2.json/mapConfig.json"
+            // all center
+//            "http://cloud-vts.huangwei.icu:8070/store/map-config/hdrp_vef_14.2022-04-25_16-57-57.json/mapConfig.json"
+//            "http://cloud-vts.huangwei.icu:8070/store/datasets/upload.2022-04-25_17-27-16/mapConfig.json"
+            "http://cloud-vts.huangwei.icu:8070/store/map-config/hdrp_vef_14.2022-04-25_17-46-22.json/mapConfig.json"
+;
 
+//    builder
+//    .Append("{ \"fixedTraversalDistance\":")
+//    .Append(collidersDistance)
+//    .Append(", \"fixedTraversalLod\":")
+//    .Append(collidersLod)
+//    .Append(", \"traverseModeSurfaces\":\"fixed\", \"traverseModeGeodata\":\"none\" }");
+
+    nav = cam->createNavigation();
+//    nav->options().mode = vts::NavigationMode::Free;
     // create renderer view
     view = context->createView(cam.get());
+    view->options();
     updateResolution();
 
     // pass a mapconfig url to the map
-    map->setMapconfigPath("https://cdn.melown.com/mario/store/melown2015/map-config/melown/Melown-Earth-Intergeo-2017/mapConfig.json");
+    map->setMapconfigPath(url);
 
     // acquire current time (for measuring how long each frame takes)
     uint32 lastRenderTime = SDL_GetTicks();

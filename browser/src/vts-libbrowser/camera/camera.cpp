@@ -186,7 +186,7 @@ double distanceToDisk(const vec3 &diskNormal,
 double CameraImpl::coarsenessValue(TraverseNode *trav)
 {
     assert(trav->meta);
-    assert(!std::isnan(trav->meta->texelSize));
+//    assert(!std::isnan(trav->meta->texelSize));
 
     const auto &meta = trav->meta;
 
@@ -197,6 +197,8 @@ double CameraImpl::coarsenessValue(TraverseNode *trav)
     if (map->options.debugCoarsenessDisks
         && !std::isnan(meta->diskHalfAngle))
     {
+        assert(!std::isnan(trav->meta->texelSize));
+
         // test the value at point at the distance from the disk
         double dist = distanceToDisk(meta->diskNormalPhys,
             meta->diskHeightsPhys, meta->diskHalfAngle,

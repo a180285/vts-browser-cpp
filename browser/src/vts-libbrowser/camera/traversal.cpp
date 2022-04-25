@@ -744,6 +744,61 @@ void CameraImpl::travModeFixed(TraverseNode *trav)
         travModeFixed(&t);
 }
 
+// return rendered or not
+bool CameraImpl::travModeDistanceBaseFixed(TraverseNode *trav)
+{
+    if (!travInit(trav))
+        return false;
+
+    int lodDiff = std::max(0, int(options.fixedTraversalLod - trav->id.lod));
+    double targetTraversalDistance = options.fixedTraversalDistance * pow(2, lodDiff);
+
+    auto tileDistance = travDistance(trav, focusPosPhys);
+    if (tileDistance > targetTraversalDistance)
+        return false;
+
+    if ((lodDiff < 5 && tileDistance > targetTraversalDistance / 2) || trav->childs.empty())
+    {
+//        printf("renderNode: %2d - %d %d\n", trav->id.lod, trav->id.x, trav->id.y);
+        if (travDetermineDraws(trav))
+            renderNode(trav);
+        return true;
+    }
+
+    bool isRendered = false;
+
+    int childrenCount = trav->childs.size();
+    std::vector<bool> rendered(childrenCount);
+    {
+        int i = 0;
+        for (auto& t : trav->childs) {
+            rendered[i] = travModeDistanceBaseFixed(&t);
+            if (rendered[i]) {
+                isRendered = true;
+            }
+            i++;
+        }
+    }
+
+    if (!isRendered) {
+        return isRendered;
+    }
+
+    {
+        int i = 0;
+        for (auto& t : trav->childs) {
+            if (rendered[i++]) {
+                continue;
+            }
+            if (travDetermineDraws(&t))
+                renderNode(&t);
+        }
+    }
+
+    return isRendered;
+}
+
+
 void CameraImpl::traverseRender(TraverseNode *trav)
 {
     switch (trav->layer->isGeodata() ? options.traverseModeGeodata : options.traverseModeSurfaces)
@@ -764,6 +819,9 @@ void CameraImpl::traverseRender(TraverseNode *trav)
         break;
     case TraverseMode::Fixed:
         travModeFixed(trav);
+        break;
+    case TraverseMode::DistanceBaseFixed:
+        travModeDistanceBaseFixed(trav);
         break;
     default:
         assert(false);

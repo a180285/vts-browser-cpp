@@ -116,6 +116,9 @@ enum class TraverseMode
     //   and it will render everything up to some specified distance
     // this mode is designed for use with collider probes
     Fixed,
+
+    // lod different fixed lod base on distance
+    DistanceBaseFixed,
 };
 
 enum class FreeLayerType

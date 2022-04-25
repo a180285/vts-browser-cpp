@@ -156,6 +156,7 @@ public:
     bool travModeBalanced(TraverseNode *trav, bool renderOnly);
     bool travLod(TraverseNode *trav, int lod, int a1, int b1, int a2, int b2);
     void travModeFixed(TraverseNode *trav);
+    bool travModeDistanceBaseFixed(TraverseNode *trav);
     void traverseRender(TraverseNode *trav);
     void gridPreloadRequest(TraverseNode *trav);
     void gridPreloadProcess(TraverseNode *root);
