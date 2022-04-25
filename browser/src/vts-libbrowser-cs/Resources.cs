@@ -122,8 +122,7 @@ namespace vts
         public uint verticesCount;
         public uint indicesCount;
         public byte[] vertices;
-        // TODO: Change to uint to support more than 2^16 vertices
-        public ushort[] indices;
+        public int[] indices;
         public string id;
 
         public void Load(IntPtr handle)
@@ -137,10 +136,10 @@ namespace vts
             Util.CheckInterop();
             if (indicesCount > 0)
             {
-                short[] tmp = new short[indicesCount];
+                int[] tmp = new int[indicesCount];
                 Marshal.Copy(bufPtr, tmp, 0, (int)indicesCount);
-                indices = new ushort[indicesCount];
-                Buffer.BlockCopy(tmp, 0, indices, 0, (int)indicesCount * 2);
+                indices = new int[indicesCount];
+                Buffer.BlockCopy(tmp, 0, indices, 0, (int)indicesCount * 4);
             }
             BrowserInterop.vtsMeshGetVertices(handle, ref bufPtr, ref bufSize, ref verticesCount);
             Util.CheckInterop();

@@ -136,10 +136,10 @@ GpuMesh::GpuMesh(MapImpl *map, const std::string &name,
         spec.verticesCount = m.vertices.size();
         spec.vertices.allocate(spec.verticesCount * vertexSize);
         spec.indicesCount = m.faces.size() * 3;
-        spec.indices.allocate(spec.indicesCount * sizeof(uint16));
+        spec.indices.allocate(spec.indicesCount * sizeof(uint32));
 
         { // indices
-            uint16 *io = (uint16*)spec.indices.data();
+            uint32 *io = (uint32*)spec.indices.data();
             for (const auto &it : m.faces)
             {
                 for (uint32 j = 0; j < 3; j++)
@@ -176,14 +176,15 @@ GpuMesh::GpuMesh(MapImpl *map, const std::string &name,
         spec.verticesCount = m.tc.size();
         spec.vertices.allocate(spec.verticesCount * vertexSize);
         spec.indicesCount = m.facesTc.size() * 3;
-        spec.indices.allocate(spec.indicesCount * sizeof(uint16));
+        spec.indices.allocate(spec.indicesCount * sizeof(uint32));
 
         { // indices
-            uint16 *io = (uint16*)spec.indices.data();
+            uint32 *io = (uint32*)spec.indices.data();
             for (const auto &it : m.facesTc)
             {
-                for (uint32 j = 0; j < 3; j++)
+                for (uint32 j = 0; j < 3; j++) {
                     *io++ = it[j];
+                }
             }
             assert((char*)io == spec.indices.dataEnd());
         }
