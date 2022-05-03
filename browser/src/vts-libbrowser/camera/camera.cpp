@@ -963,7 +963,8 @@ void CameraImpl::renderUpdate()
         }
         gridPreloadProcess(it->traverseRoot.get());
     }
-    sortOpaqueFrontToBack();
+    // This is not useful for unity and wasted much cpu time.
+    //sortOpaqueFrontToBack();
 
     // update camera credits
     map->credits->tick(credits);

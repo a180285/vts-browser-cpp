@@ -66,6 +66,8 @@ public:
 
     // desired lod used with fixed traversal mode
     uint32 fixedTraversalLod = 15;
+    // DistanceBaseFixed
+    uint32 maxLodDiffForLoad = 3;
 
     // coarser lod offset for grids for use with balanced traversal
     // -1 to disable grids entirely

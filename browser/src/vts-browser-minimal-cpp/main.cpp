@@ -141,7 +141,7 @@ int main(int, char *[])
     auto& co = cam->options();
     co.fixedTraversalDistance = 200;
     co.fixedTraversalLod = 19;
-    co.traverseModeSurfaces = vts::TraverseMode::Balanced;
+    co.traverseModeSurfaces = vts::TraverseMode::DistanceBaseFixed;
     std::string url =
             // with_ normal
 //            "http://cloud-vts.huangwei.icu:8070/store/datasets/hdrp_vef_07.1650538913/mapConfig.json"
@@ -157,7 +157,10 @@ int main(int, char *[])
             // all center
 //            "http://cloud-vts.huangwei.icu:8070/store/map-config/hdrp_vef_14.2022-04-25_16-57-57.json/mapConfig.json"
 //            "http://cloud-vts.huangwei.icu:8070/store/datasets/upload.2022-04-25_17-27-16/mapConfig.json"
-            "http://cloud-vts.huangwei.icu:8070/store/map-config/hdrp_vef_14.2022-04-25_17-46-22.json/mapConfig.json"
+//            "http://cloud-vts.huangwei.icu:8070/store/map-config/hdrp_vef_14.2022-04-25_17-46-22.json/mapConfig.json"
+            //"http://cloud-vts.huangwei.icu:8070/store/datasets/hdrp_vef_15.2022-04-26_11-17-18/mapConfig.json"
+            // road with 0 height dem
+               "http://cloud-vts.huangwei.icu:8070/store/map-config/hdrp_vef_18_new.2022-05-03_11-43-41.json/mapConfig.json"
 ;
 
 //    builder

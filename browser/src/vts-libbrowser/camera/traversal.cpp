@@ -744,6 +744,8 @@ void CameraImpl::travModeFixed(TraverseNode *trav)
         travModeFixed(&t);
 }
 
+const int max_lod_diff = 4;
+
 // return rendered or not
 bool CameraImpl::travModeDistanceBaseFixed(TraverseNode *trav)
 {
@@ -757,7 +759,7 @@ bool CameraImpl::travModeDistanceBaseFixed(TraverseNode *trav)
     if (tileDistance > targetTraversalDistance)
         return false;
 
-    if ((lodDiff < 5 && tileDistance > targetTraversalDistance / 2) || trav->childs.empty())
+    if ((lodDiff < max_lod_diff && tileDistance > targetTraversalDistance / 2) || trav->childs.empty())
     {
 //        printf("renderNode: %2d - %d %d\n", trav->id.lod, trav->id.x, trav->id.y);
         if (travDetermineDraws(trav))
@@ -778,6 +780,10 @@ bool CameraImpl::travModeDistanceBaseFixed(TraverseNode *trav)
             }
             i++;
         }
+    }
+
+    if (lodDiff > max_lod_diff) {
+        return isRendered;
     }
 
     if (!isRendered) {
