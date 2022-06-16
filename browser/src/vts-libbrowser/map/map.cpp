@@ -53,6 +53,7 @@ MapImpl::MapImpl(Map *map, const MapCreateOptions &options,
     this->fetcher = fetcher;
     resources = std::make_shared<Resources>(this);
     credits = std::make_shared<Credits>();
+    LOG(debug) << "map createOptions: " << createOptions.toJson();
 }
 
 MapImpl::~MapImpl()

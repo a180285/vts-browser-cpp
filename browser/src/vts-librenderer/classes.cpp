@@ -662,8 +662,15 @@ void Mesh::load(ResourceInfo &info, GpuMeshSpec &specp,
     {
         glGenBuffers(1, &vio);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vio);
+        Buffer uint16_indices_buffer;
+        uint16_indices_buffer.resize(spec.indicesCount * sizeof(uint16_t));
+        auto uint16_indices = (uint16_t*)uint16_indices_buffer.data();
+        auto uint32_indices = (uint32_t*)spec.indices.data();
+        for (uint32_t i = 0; i < spec.indicesCount; i++) {
+            uint16_indices[i] = uint32_indices[i];
+        }
         glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 spec.indices.size(), spec.indices.data(), GL_STATIC_DRAW);
+                     uint16_indices_buffer.size(), uint16_indices_buffer.data(), GL_STATIC_DRAW);
     }
     setDebugId(debugId);
     CHECK_GL("load mesh");

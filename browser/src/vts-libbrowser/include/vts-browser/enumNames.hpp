@@ -71,6 +71,7 @@ UTILITY_GENERATE_ENUM_IO(TraverseMode,
     ((Balanced)("balanced"))
     ((Hierarchical)("hierarchical"))
     ((Fixed)("fixed"))
+    ((DistanceBaseFixed)("distanceBaseFixed"))
 )
 
 #ifdef UNDEF_UTILITY_GENERATE_ENUM_IO
